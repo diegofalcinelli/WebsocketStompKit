@@ -333,7 +333,7 @@ CFAbsoluteTime serverActivity;
         idGenerator = 0;
         self.connected = NO;
         self.subscriptions = [[NSMutableDictionary alloc] init];
-        self.clientHeartBeat = @"5000,10000";
+        self.clientHeartBeat = @"0,20000";
     }
     return self;
 }
@@ -576,17 +576,21 @@ CFAbsoluteTime serverActivity;
 // Should never be used for STOMP as STOMP is a text based protocol.
 // However, STOMPKit can handle binary data so no harm in leaving this here
 - (void)websocket:(JFRWebSocket*)socket didReceiveData:(NSData*)data {
-    serverActivity = CFAbsoluteTimeGetCurrent();
-    STOMPFrame *frame = [STOMPFrame STOMPFrameFromData:data];
-    [self receivedFrame:frame];
+    if(data.length > 0){
+        serverActivity = CFAbsoluteTimeGetCurrent();
+        STOMPFrame *frame = [STOMPFrame STOMPFrameFromData:data];
+        [self receivedFrame:frame];
+    }
 }
 
 // TEXT FRAMES!
 // This is where all the goodness should arrive
 - (void)websocket:(JFRWebSocket*)socket didReceiveMessage:(NSString *)string {
-    serverActivity = CFAbsoluteTimeGetCurrent();
-    STOMPFrame *frame = [STOMPFrame STOMPFrameFromData:[string dataUsingEncoding:NSUTF8StringEncoding]];
-    [self receivedFrame:frame];
+    if(![string isEqualToString:@"\n"] && ![string isEqualToString:@""]){
+        serverActivity = CFAbsoluteTimeGetCurrent();
+        STOMPFrame *frame = [STOMPFrame STOMPFrameFromData:[string dataUsingEncoding:NSUTF8StringEncoding]];
+        [self receivedFrame:frame];
+    }
 }
 
 - (void)websocketDidDisconnect:(JFRWebSocket*)socket error:(NSError*)error {
