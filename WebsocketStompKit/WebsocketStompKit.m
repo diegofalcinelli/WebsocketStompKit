@@ -20,7 +20,8 @@
 
 #ifdef DEBUG // set to 1 to enable logs
 
-#define LogDebug(frmt, ...) NSLog(frmt, ##__VA_ARGS__);
+#define LogDebug(frmt, ...) {}
+//#define LogDebug(frmt, ...) NSLog(frmt, ##__VA_ARGS__);
 
 #else
 
